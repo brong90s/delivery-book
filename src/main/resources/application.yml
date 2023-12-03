@@ -1,1 +1,24 @@
+server:
+  port: 8080
 
+# MYSQL
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:mysql://${DELIVERY_BOOK_DB_IP:localhost}:${DELIVERY_BOOK_DB_PORT:33077}/deliverybook
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:password}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+      show-sql: true
+
+# JWT
+jwt:
+  secret: 404E635266556A586E3372357538782F413F4428472B4B6250645367566B5970
+  expireMs: 600000 # 10 Minutes
+  refreshexpireMs: 120000

@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  deliverybook_db:
+    container_name: deliverybook_db
+    image: mysql:8.0.33
+    restart: always
+    env_file:
+      - .env  # Use the .env file for environment variables
+    environment:
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USERNAME}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_PORT: ${DATABASE_PORT}
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+    ports:
+      - "33077:3306"
+    networks:
+      - bookDeliveryNetwork
+
+  deliverybook:
+    image: 'bookdelivery:latest'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deliverybook
+    restart: on-failure
+    env_file:
+      - .env  # Use the .env file for environment variables
+    ports:
+      - "8080:8080"
+    environment:
+      - server.port=8080
+      - spring.datasource.username=${DATABASE_USERNAME}
+      - spring.datasource.password=${DATABASE_PASSWORD}
+      - DELIVERY_BOOK_DB_IP=deliverybook_db
+      - DELIVERY_BOOK_DB_PORT=${DATABASE_PORT}
+      - spring.datasource.url=jdbc:mysql://host.docker.internal:33077/deliverybook
+    depends_on:
+      - deliverybook_db
+    networks:
+      - bookDeliveryNetwork
+
+networks:
+  bookDeliveryNetwork:
